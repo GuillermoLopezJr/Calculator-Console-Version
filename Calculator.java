@@ -2,82 +2,127 @@ import java.util.Scanner;
 import java.util.Stack;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class Calculator{
 
+	public static ArrayList<String> tokens;
+	public static Map<String, Integer> precedenceTable;
+	public static Stack<String> opStack; 
+	public static final String delimiters = "()+-/* ";
+
 	public static void main(String[] args)
 	{
-		Stack<Character> opStack = new Stack<Character>();
-		String postfixExpr = "";
-		Map<Character, Integer> map = new HashMap<Character, Integer>();
+		opStack = new Stack<String>();
+		tokens = new ArrayList<String>();
+		precedenceTable = new HashMap<String, Integer>();
+		populatePrecedenceTable();
 
-		map.put('+', 1);
-		map.put('-', 1);
-		map.put('*', 2);
-		map.put('/', 2);
+		String infixExpr = getInfixExpr();
+		getTokens(infixExpr);
+		
 
+         String postfixExpr = getPostFixExpre();
+		
+		System.out.println("post fix expresion is: " + postfixExpr);
+	}
+	public static void getTokens(String infixExpr)
+	{
+		StringTokenizer st = new StringTokenizer(infixExpr, delimiters, true);
 
+		while (st.hasMoreTokens()) {
+			String token = st.nextToken();
+           	
+            if(!token.equals(" "))
+            	tokens.add(token);
+         }
+	}
+	public static void populatePrecedenceTable()
+	{
+		precedenceTable.put("+", 1);
+		precedenceTable.put("-", 1);
+		precedenceTable.put("*", 2);
+		precedenceTable.put("/", 2);
+	}
+	public static double evaluate()
+	{
+		Stack<String> stack = new Stack<String>();
+
+		for(int i = 0; i < tokens.size(); i++)
+		{
+			if(!isOperator(tokens.get(i)))
+				stack.push(tokens.get(i));
+			else
+			{
+				//if(isBinaryOperator() );
+				double num1 = Double.parseDouble(stack.pop());
+				double num2 = Double.parseDouble(stack.pop());
+				char op = tokens.get(i).charAt(0);
+				double result = getResult(num1, num2, op);
+
+			}
+		}
+		return 0;
+	}
+	
+	public static double getResult(double num1, double num2, char op)
+	{
+		return 0;
+	}
+	public static String getInfixExpr()
+	{
 		Scanner keyboard = new Scanner(System.in);
 		System.out.print("Enter expresion: ");
 		String infixExpr = keyboard.nextLine();
-
-		char[] tokens = new char[infixExpr.length()];
-
-		for(int i = 0; i < infixExpr.length(); i++)
+		return infixExpr;
+	}
+	public static String getPostFixExpre()
+	{
+		String postfixExpr = "";
+		for(int i = 0; i < tokens.size(); i++)
 		{
-			tokens[i] = infixExpr.charAt(i);
-		}
-
-		for(int i = 0; i < infixExpr.length(); i++)
-		{
-			System.out.println("Token " + i + ": " + tokens[i]);
-			if( isOperand(tokens[i]) )
+			if( isOperator(tokens.get(i)) )
 			{
 				if(opStack.empty() )
-					opStack.push(tokens[i]);
+					opStack.push(tokens.get(i));
 				else
 				{
 					boolean topStackPrecHigher = true;
 					boolean tokenPushed = false;
 
 					do{
-						if(map.get(opStack.peek()) < map.get(tokens[i]))
+						if(precedenceTable.get(opStack.peek()) < precedenceTable.get(tokens.get(i)))
 						{
-							opStack.push(tokens[i]);
+							opStack.push(tokens.get(i));
 							topStackPrecHigher = false;
 							tokenPushed = true;
 						}
 						else //top stack higher precdecne
-							postfixExpr += opStack.pop();
+							postfixExpr += " " + opStack.pop();
 							
 					}while(topStackPrecHigher && !opStack.empty());
 					
 					if(!tokenPushed)	
-						opStack.push(tokens[i]);
+						opStack.push(tokens.get(i));
 				}
 			}
 			else
-				postfixExpr += tokens[i];
+				postfixExpr += " " + tokens.get(i);
 		}
 
 		while(!opStack.empty()) //pop remaining tokens
-			postfixExpr += opStack.pop();
+			postfixExpr += " " + opStack.pop();
 
-		System.out.println("post fix expresion is: " + postfixExpr);
-
-
-	}
-	public static void populateMap()
-	{
-		
+		return postfixExpr;
 	}
 	public static boolean comparePrecedence()
 	{
 		return false;
 	}
-	public static boolean isOperand(char c)
+	public static boolean isOperator(String str)
 	{
-		 return (c == '+' || c == '-' || c == '*' || c == '/');
+		 return (str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/") );
 	}
 
 }

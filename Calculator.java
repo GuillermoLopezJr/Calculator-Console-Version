@@ -22,14 +22,18 @@ public class Calculator{
 		String infixExpr = getInfixExpr();
 		getTokens(infixExpr);
 		
-
-         String postfixExpr = getPostFixExpre();
-		
+        String postfixExpr = getPostFixExpre();
 		System.out.println("post fix expresion is: " + postfixExpr);
+		tokens.clear();
+		getTokens(postfixExpr);
+
+		double result = evaluate();
+		System.out.println("Result is: " + result);
+
 	}
-	public static void getTokens(String infixExpr)
+	public static void getTokens(String expr)
 	{
-		StringTokenizer st = new StringTokenizer(infixExpr, delimiters, true);
+		StringTokenizer st = new StringTokenizer(expr, delimiters, true);
 
 		while (st.hasMoreTokens()) {
 			String token = st.nextToken();
@@ -56,20 +60,43 @@ public class Calculator{
 			else
 			{
 				//if(isBinaryOperator() );
-				double num1 = Double.parseDouble(stack.pop());
-				double num2 = Double.parseDouble(stack.pop());
-				char op = tokens.get(i).charAt(0);
-				double result = getResult(num1, num2, op);
-
+				try{
+					double num2 = Double.parseDouble(stack.pop());
+					double num1 = Double.parseDouble(stack.pop());
+					char op = tokens.get(i).charAt(0);
+					double result = getResult(num1, num2, op);
+					stack.push(""+result);
+				}
+				catch(Exception ex)
+				{
+					System.out.println("Invalid expression");
+				}
+				
 			}
 		}
-		return 0;
+
+		if(stack.size() == 1)
+			return Double.parseDouble(stack.pop());
+		else
+			return -1; // error
+
 	}
-	
+
 	public static double getResult(double num1, double num2, char op)
 	{
-		return 0;
+		double result = 0;
+
+		if(op == '+')
+			result = num1 + num2;
+		else if(op == '-')
+			result = num1 - num2;
+		else if (op == '/')
+			result = num1 / num2;
+		else if (op == '*')
+			result = num1 * num2;
+		return result;
 	}
+
 	public static String getInfixExpr()
 	{
 		Scanner keyboard = new Scanner(System.in);
@@ -77,6 +104,7 @@ public class Calculator{
 		String infixExpr = keyboard.nextLine();
 		return infixExpr;
 	}
+
 	public static String getPostFixExpre()
 	{
 		String postfixExpr = "";

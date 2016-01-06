@@ -3,17 +3,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
+import java.util.Arrays;
 public class Calculator{
 	
 	private ArrayList<String> tokens;
+	
 	private Map<String, Integer> precedenceTable;
 	private Stack<String> opStack; 
-	private final String delimiters = "()+-/* ";
-
+	private final String delimiters = "()+-/*^% ";
+	private ArrayList<String> operators;
 	public Calculator()
 	{
 		opStack = new Stack<String>();
+		operators = new ArrayList<String>(Arrays.asList("+", "-", "%", "^", "*", "/")); 
+
 		tokens = new ArrayList<String>();
 		precedenceTable = new HashMap<String, Integer>();
 		populatePrecedenceTable();
@@ -47,7 +50,7 @@ public class Calculator{
            	
             if(!token.equals(" "))
             	tokens.add(token);
-         }
+        }
 	}
 
 	public void populatePrecedenceTable()
@@ -56,6 +59,8 @@ public class Calculator{
 		precedenceTable.put("-", 1);
 		precedenceTable.put("*", 2);
 		precedenceTable.put("/", 2);
+		precedenceTable.put("%", 3);
+		precedenceTable.put("^", 3);
 		precedenceTable.put("(", 0);
 		precedenceTable.put(")", 100);
 	}
@@ -109,6 +114,10 @@ public class Calculator{
 		}
 		else if (op == '*')
 			result = num1 * num2;
+		else if (op == '%')
+			result = num1 % num2;
+		else if (op == '^')
+			result = Math.pow(num1, num2);
 		return result;
 	}
 
@@ -173,6 +182,12 @@ public class Calculator{
 	}
 	public boolean isOperator(String str)
 	{
-		 return (str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/") );
+		 //return (str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/") );
+		for(int i = 0; i < operators.size(); i++)
+		{
+			if(str.equals(operators.get(i)))
+				return true;
+		}
+		return false;
 	}
 }

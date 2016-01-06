@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.util.Stack;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,32 +6,39 @@ import java.util.StringTokenizer;
 
 public class Calculator{
 	
-	public static ArrayList<String> tokens;
-	public static Map<String, Integer> precedenceTable;
-	public static Stack<String> opStack; 
-	public static final String delimiters = "()+-/* ";
+	private ArrayList<String> tokens;
+	private Map<String, Integer> precedenceTable;
+	private Stack<String> opStack; 
+	private final String delimiters = "()+-/* ";
 
-	public static void main(String[] args)
+	public Calculator()
 	{
 		opStack = new Stack<String>();
 		tokens = new ArrayList<String>();
 		precedenceTable = new HashMap<String, Integer>();
 		populatePrecedenceTable();
-
-		String infixExpr = getInfixExpr();
-		getTokens(infixExpr);
-		
-        String postfixExpr = getPostFixExpre();
-		System.out.println("post fix expresion is: " + postfixExpr);
-		
-		tokens.clear();
-		getTokens(postfixExpr);
-
-		double result = evaluate();
-		System.out.println("Result is: " + result);
 	}
 
-	public static void getTokens(String expr)
+	public double calculate(String expr) throws Exception
+	{
+		String infixExpr = expr;
+		addTokens(infixExpr); //add tokens to arrayList
+		
+        String postfixExpr = getPostFixExpre();
+		
+		tokens.clear();
+		addTokens(postfixExpr); //tokens are in post fix notation ie no parenthesis
+
+		double result = evaluate();
+		return result;
+	}
+
+	public void clearCalc()
+	{
+		tokens.clear();
+	}
+
+	public void addTokens(String expr)
 	{
 		StringTokenizer st = new StringTokenizer(expr, delimiters, true);
 
@@ -44,7 +50,7 @@ public class Calculator{
          }
 	}
 
-	public static void populatePrecedenceTable()
+	public void populatePrecedenceTable()
 	{
 		precedenceTable.put("+", 1);
 		precedenceTable.put("-", 1);
@@ -54,9 +60,10 @@ public class Calculator{
 		precedenceTable.put(")", 100);
 	}
 
-	public static double evaluate()
+	public double evaluate() throws Exception
 	{
 		Stack<String> stack = new Stack<String>();
+		double result = -99999;
 
 		for(int i = 0; i < tokens.size(); i++)
 		{
@@ -65,52 +72,47 @@ public class Calculator{
 				stack.push(curToken);
 			else if (isOperator(curToken))
 			{
-				//if(isBinaryOperator() );
 				try{
 					double num2 = Double.parseDouble(stack.pop());
-					double num1 = Double.parseDouble(stack.pop());
+					double num1 = Double.parseDouble(stack.pop());	
 					char op = curToken.charAt(0);
-					double result = getResult(num1, num2, op);
+					result = getResult(num1, num2, op);
 					stack.push(""+result);
 				}
 				catch(Exception ex){
-					System.out.println("Invalid expression");
-				}
+					throw new ComputationException("Format Exception");
+				}	
 			}
 		}
-
+		
 		if(stack.size() == 1)
-			return Double.parseDouble(stack.pop());
-		else
-			return -1;
-			//throw new ComputationException("invalid Expression");
-			//throw ComputationException("Invalid Expression");
+			result = Double.parseDouble(stack.pop());
+		else 
+			throw new ComputationException("Invalid Expression");
+		return result;
 	}
 
-	public static double getResult(double num1, double num2, char op)
+	public double getResult(double num1, double num2, char op) throws ComputationException
 	{
 		double result = 0;
 
-		if(op == '+')
+		if (op == '+')
 			result = num1 + num2;
-		else if(op == '-')
+		else if (op == '-')
 			result = num1 - num2;
 		else if (op == '/')
-			result = num1 / num2;
+		{
+			if (num2 == 0)
+    			throw new ComputationException("Divide by Zero");
+			else
+				result = num1 / num2;
+		}
 		else if (op == '*')
 			result = num1 * num2;
 		return result;
 	}
 
-	public static String getInfixExpr()
-	{
-		Scanner keyboard = new Scanner(System.in);
-		System.out.print("Enter expresion: ");
-		String infixExpr = keyboard.nextLine();
-		return infixExpr;
-	}
-
-	public static String getPostFixExpre()
+	public String getPostFixExpre()
 	{
 		String postfixExpr = "";
 
@@ -125,7 +127,7 @@ public class Calculator{
 			else if (isOperator(curToken) )
 			{
 				while( !opStack.empty() && !hasHigherPrecedence(curToken, opStack.peek()) && !isLeftParen(opStack.peek()) )
-					postfixExpr += opStack.pop();
+					postfixExpr += " " + opStack.pop();
 
 				opStack.push(curToken);
 			}
@@ -135,31 +137,31 @@ public class Calculator{
 			}
 			else if ( isRightParen(curToken) )
 			{
-				while( !opStack.empty() && !isLeftParen(opStack.peek()) )
+				while ( !opStack.empty() && !isLeftParen(opStack.peek()) )
 					postfixExpr += " " + opStack.pop();
 				opStack.pop(); //pop the right paren
 			}
 		}
 
-		while(!opStack.empty()) //pop remaining tokens
+		while (!opStack.empty()) //pop remaining tokens
 			postfixExpr += " " + opStack.pop();
 
 		return postfixExpr;
 	}
 
-	public static boolean isLeftParen(String str)
+	public boolean isLeftParen(String str)
 	{
 		return (str.equals("("));
 	}
-	public static boolean isRightParen(String str)
+	public boolean isRightParen(String str)
 	{
 		return (str.equals(")")); 
 	}
-	public static boolean hasHigherPrecedence(String op1, String op2)
+	public boolean hasHigherPrecedence(String op1, String op2)
 	{
 		return (precedenceTable.get(op1) > precedenceTable.get(op2) );	
 	}
-	public static boolean isOperand(String str)
+	public boolean isOperand(String str)
 	{
 		try{
 			double num = Double.parseDouble(str);
@@ -169,7 +171,7 @@ public class Calculator{
 		}
 		return true;
 	}
-	public static boolean isOperator(String str)
+	public boolean isOperator(String str)
 	{
 		 return (str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/") );
 	}

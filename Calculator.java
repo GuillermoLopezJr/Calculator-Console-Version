@@ -45,18 +45,13 @@ public class Calculator{
 	{
 		StringTokenizer st = new StringTokenizer(expr, delimiters, true);
 
-		while (st.hasMoreTokens()) {
+		while (st.hasMoreTokens()) 
+		{
 			String token = st.nextToken();
            	
-<<<<<<< HEAD
             if(!token.equals(" "))
             	tokens.add(token);
         }
-=======
-        	 	if(!token.equals(" "))
-            		tokens.add(token);
-         	}
->>>>>>> 5eeb6c689feaef71aa2b90b02637f8b7a99016be
 	}
 
 	public void populatePrecedenceTable()
@@ -188,7 +183,6 @@ public class Calculator{
 	}
 	public boolean isOperator(String str)
 	{
-		 //return (str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/") );
 		for(int i = 0; i < operators.size(); i++)
 		{
 			if(str.equals(operators.get(i)))

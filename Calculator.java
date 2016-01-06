@@ -45,9 +45,9 @@ public class Calculator{
 		while (st.hasMoreTokens()) {
 			String token = st.nextToken();
            	
-            if(!token.equals(" "))
-            	tokens.add(token);
-         }
+        	 	if(!token.equals(" "))
+            		tokens.add(token);
+         	}
 	}
 
 	public void populatePrecedenceTable()
